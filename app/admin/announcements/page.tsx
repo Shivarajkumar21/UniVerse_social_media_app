@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { UploadButton, UploadDropzone, Uploader } from "@uploadthing/react";
 import ReactMarkdown from "react-markdown";
 import type { OurFileRouter } from "@/app/api/uploadthing/core";
+import { toast } from "react-hot-toast";
 
 interface Announcement {
   id: string;
@@ -213,37 +214,34 @@ export default function AdminAnnouncementsPage() {
               </div>
               <div>
                 <label className="block font-medium mb-1">Attachments</label>
-                <UploadButton<OurFileRouter, "announcementUploader">
-                  endpoint="announcementUploader"
+                <UploadButton<OurFileRouter, "documentUploader">
+                  endpoint="documentUploader"
                   onClientUploadComplete={(res) => {
                     setForm((prev) => ({
                       ...prev,
-                      attachments: [
-                        ...prev.attachments,
-                        ...res.map((f: { url: string; name: string }) => ({ url: f.url, name: f.name }))
-                      ]
+                      attachments: res.map((file) => ({
+                        url: file.url,
+                        name: file.name,
+                      })),
                     }));
                   }}
-                  onUploadError={(error: Error) => setFormError(error.message)}
-                  appearance={{
-                    button: "bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700",
-                    container: "mt-2",
-                    allowedContent: "hidden",
+                  onUploadError={(error: Error) => {
+                    toast.error(`ERROR! ${error.message}`);
                   }}
                 />
-                {form.attachments.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {form.attachments.map((file, i) => (
-                      <div key={i} className="relative group">
-                        <a href={file.url} target="_blank" rel="noopener noreferrer" className="block underline text-blue-600">
-                          {file.name}
-                        </a>
-                        <button type="button" className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-80 group-hover:opacity-100" onClick={() => handleRemoveFile(file.url)}>&times;</button>
-                      </div>
-                    ))}
-                  </div>
-                )}
               </div>
+              {form.attachments.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {form.attachments.map((file, i) => (
+                    <div key={i} className="relative group">
+                      <a href={file.url} target="_blank" rel="noopener noreferrer" className="block underline text-blue-600">
+                        {file.name}
+                      </a>
+                      <button type="button" className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-80 group-hover:opacity-100" onClick={() => handleRemoveFile(file.url)}>&times;</button>
+                    </div>
+                  ))}
+                </div>
+              )}
               {formError && <div className="text-red-600 text-sm">{formError}</div>}
               <div className="flex justify-end gap-2">
                 <button type="button" className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600" onClick={() => { setShowModal(false); setEditId(null); }} disabled={submitting}>Cancel</button>
