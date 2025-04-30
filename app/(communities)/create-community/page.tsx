@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Modal from "@/components/modal";
 import { inputClassnames } from "@/components/inputClassNames";
-import { UploadButton } from "@/utils/uploadthing";
+import { UploadButton } from "@uploadthing/react";
 import toast from "react-hot-toast";
 import ProfileImage from "@/components/ui/profileImage";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import { useRecoilState } from "recoil";
 import { communityState } from "@/state/atoms/communityState";
 import { Community } from "@/app/(communities)/communities/page";
 import { userState } from "@/state/atoms/userState";
+import { OurFileRouter } from "@/app/api/uploadthing/core";
 
 const CreateNewCommunity = () => {
   const [communities, setCommunities] = useRecoilState(communityState);
@@ -69,7 +70,7 @@ const CreateNewCommunity = () => {
           src={community.imageUrl || "/team-placeholder.png"}
           size={100}
         />
-        <UploadButton
+        <UploadButton<OurFileRouter, "imageUploader">
           endpoint="imageUploader"
           onClientUploadComplete={(res) => {
             toast.success("successfully uploaded photo");
