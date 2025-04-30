@@ -1,4 +1,5 @@
 import { UploadButton } from "@/utils/uploadthing";
+import type { OurFileRouter } from "@/app/api/uploadthing/core";
 import { useRecoilState } from "recoil";
 import { userState } from "@/state/atoms/userState";
 import ProfileImage from "@/components/ui/profileImage";
@@ -57,7 +58,7 @@ const EditProfile = () => {
                 className=" h-24 w-full rounded-md object-cover "
               />
               <div className="absolute top-0 h-24 w-full bg-darkTransparent"></div>
-              <UploadButton
+              <UploadButton<OurFileRouter, "imageUploader">
                 endpoint="imageUploader"
                 onClientUploadComplete={(res) => {
                   toast.success("successfully updated profile");
@@ -67,7 +68,6 @@ const EditProfile = () => {
                   }));
                 }}
                 onUploadError={(error: Error) => {
-                  // Do something with the error.
                   toast.error(`Max size should be less than 16 MB`);
                 }}
                 className=" absolute right-2 top-6 ut-allowed-content:text-lightTheme sm:right-8 "
@@ -82,7 +82,7 @@ const EditProfile = () => {
                 }
                 size={120}
               />
-              <UploadButton
+              <UploadButton<OurFileRouter, "imageUploader">
                 endpoint="imageUploader"
                 onClientUploadComplete={(res) => {
                   toast.success("successfully updated profile");
@@ -92,7 +92,6 @@ const EditProfile = () => {
                   }));
                 }}
                 onUploadError={(error: Error) => {
-                  // Do something with the error.
                   toast.error(`Max size should be less than 16 MB`);
                 }}
                 className=" -ml-4 dark:ut-allowed-content:text-lightTheme"
