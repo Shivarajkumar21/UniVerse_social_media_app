@@ -44,7 +44,7 @@ const Message = ({
     
     // Use different update frequencies based on message age
     const secondsAgo = differenceInSeconds(new Date(), date);
-    let interval;
+    let interval: NodeJS.Timeout;
     
     if (secondsAgo < 60) {
       // Update every second for the first minute
