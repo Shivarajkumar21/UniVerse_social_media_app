@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { FaTimes } from "react-icons/fa";
 import { UploadButton } from "@/utils/uploadthing";
+import type { OurFileRouter } from "@/app/api/uploadthing/core";
 
 interface CommunityTableProps {
   communities: (Community & {
@@ -403,18 +404,17 @@ function AddCommunityModal({ onClose }: { onClose: () => void }) {
             {form.imageUrl && (
               <img src={form.imageUrl} alt="Community" className="mb-2 w-20 h-20 object-cover rounded-full" />
             )}
-            <UploadButton
+            <UploadButton<OurFileRouter, "imageUploader">
               endpoint="imageUploader"
               onClientUploadComplete={(res) => {
                 if (res && res[0]?.url) {
                   setForm((prev) => ({ ...prev, imageUrl: res[0].url }));
                 }
               }}
-              onUploadError={(error) => {
-                // Optionally show a toast or error message
-                setError(error.message || 'Failed to upload image');
+              onUploadError={(error: Error) => {
+                console.error("Error uploading image:", error);
               }}
-              className="ut-button:w-fit ut-button:rounded-3xl ut-button:bg-lightTheme ut-button:p-2 ut-button:font-bold ut-button:text-darkTheme ut-allowed-content:hidden dark:ut-button:bg-darkTheme dark:ut-button:text-lightTheme"
+              className="ut-button:bg-blue-500 ut-button:ut-readying:bg-blue-500/50"
             />
           </div>
           <label className="flex items-center space-x-2">
