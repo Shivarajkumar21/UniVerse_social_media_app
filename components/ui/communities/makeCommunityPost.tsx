@@ -2,7 +2,10 @@
 
 import { useRef, useState } from "react";
 import { Button } from "../button";
-import { UploadButton } from "@/utils/uploadthing";
+import { UploadButton } from "@uploadthing/react";
+import type { OurFileRouter } from "@/app/api/uploadthing/core";
+import type { UploadThingError } from "@uploadthing/shared";
+import type { Json } from "@uploadthing/shared";
 import toast from "react-hot-toast";
 import { AiOutlineVideoCamera } from "react-icons/ai";
 import { BsImages } from "react-icons/bs";
@@ -119,10 +122,10 @@ export default function MakeCommunityPost({ id }: { id: string }) {
       />
       <div className=" flex gap-4 p-4">
         {!post.video && (
-          <UploadButton
+          <UploadButton<OurFileRouter, "imageUploader">
             endpoint="imageUploader"
             content={{
-              button({ ready }) {
+              button({ ready }: { ready: boolean }) {
                 if (ready)
                   return (
                     <div className=" flex items-center gap-2">
@@ -134,26 +137,26 @@ export default function MakeCommunityPost({ id }: { id: string }) {
                 return "loading...";
               },
             }}
-            onClientUploadComplete={(res) => {
-              toast.success("successfully uploaded image");
-              setPost((prev) => ({
-                ...prev,
-                image: res ? res[0]?.url : prev.image,
-              }));
+            onClientUploadComplete={(res: { url: string }[]) => {
+              if (res) {
+                setPost((prev) => ({
+                  ...prev,
+                  image: res[0].url,
+                }));
+              }
             }}
-            onUploadError={(error: Error) => {
-              // Do something with the error.
-              toast.error(`Failed to upload`);
+            onUploadError={(error: UploadThingError<Json>) => {
+              toast.error(`ERROR! ${error.message}`);
             }}
-            className=" ut-button:w-fit ut-button:rounded-3xl ut-button:bg-lightTheme ut-button:p-4 ut-button:font-bold ut-button:text-darkTheme ut-allowed-content:hidden dark:ut-button:bg-darkTheme dark:ut-button:text-lightTheme"
+            className="ut-button:bg-slate-400 ut-button:dark:bg-gray-600 ut-button:dark:hover:bg-gray-500 ut-button:hover:bg-slate-500 ut-button:dark:text-white ut-button:text-black ut-button:dark:border-gray-500 ut-button:border-slate-500 ut-button:dark:focus-within:ring-gray-500 ut-button:focus-within:ring-slate-500"
           />
         )}
 
         {!post.image && (
-          <UploadButton
+          <UploadButton<OurFileRouter, "videoUploader">
             endpoint="videoUploader"
             content={{
-              button({ ready }) {
+              button({ ready }: { ready: boolean }) {
                 if (ready)
                   return (
                     <div className=" flex items-center gap-2">
@@ -165,18 +168,18 @@ export default function MakeCommunityPost({ id }: { id: string }) {
                 return "loading...";
               },
             }}
-            onClientUploadComplete={(res) => {
-              toast.success("successfully uploaded video");
-              setPost((prev) => ({
-                ...prev,
-                video: res ? res[0]?.url : prev.video,
-              }));
+            onClientUploadComplete={(res: { url: string }[]) => {
+              if (res) {
+                setPost((prev) => ({
+                  ...prev,
+                  video: res[0].url,
+                }));
+              }
             }}
-            onUploadError={(error: Error) => {
-              // Do something with the error.
-              toast.error(`video size should be less than 64MB`);
+            onUploadError={(error: UploadThingError<Json>) => {
+              toast.error(`ERROR! ${error.message}`);
             }}
-            className="ut-button:w-fit ut-button:rounded-3xl ut-button:bg-lightTheme ut-button:p-4 ut-button:font-bold ut-button:text-darkTheme ut-allowed-content:hidden dark:ut-button:bg-darkTheme dark:ut-button:text-lightTheme"
+            className="ut-button:bg-slate-400 ut-button:dark:bg-gray-600 ut-button:dark:hover:bg-gray-500 ut-button:hover:bg-slate-500 ut-button:dark:text-white ut-button:text-black ut-button:dark:border-gray-500 ut-button:border-slate-500 ut-button:dark:focus-within:ring-gray-500 ut-button:focus-within:ring-slate-500"
           />
         )}
       </div>
