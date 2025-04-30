@@ -14,24 +14,37 @@ export async function GET(req: NextRequest) {
   return new NextResponse(JSON.stringify(notifications));
 }
 
-export async function POST(req: NextRequest) {
-  const body = await req.json();
-  const { userId, message, link } = body;
+export async function POST(request: Request) {
+  try {
+    const { userId, message, link, type } = await request.json();
 
-  const notification = await prisma.notification.create({
-    data: {
-      userId,
-      message,
-      link,
-    },
-  });
+    if (!userId || !message || !type) {
+      return new NextResponse("Missing required fields", { status: 400 });
+    }
 
-  // Trigger real-time notification
-  await pusherServer.trigger(
-    `user-${userId}-notifications`,
-    "new-notification",
-    JSON.stringify(notification)
-  );
+    const notification = await prisma.notification.create({
+      data: {
+        type,
+        message,
+        link,
+        user: {
+          connect: {
+            id: userId,
+          },
+        },
+      },
+    });
 
-  return new NextResponse(JSON.stringify(notification));
+    // Trigger real-time notification
+    await pusherServer.trigger(
+      `user-${userId}-notifications`,
+      "new-notification",
+      JSON.stringify(notification)
+    );
+
+    return NextResponse.json(notification);
+  } catch (error) {
+    console.error("[NOTIFICATIONS_POST]", error);
+    return new NextResponse("Internal error", { status: 500 });
+  }
 } 
