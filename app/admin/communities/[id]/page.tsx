@@ -6,9 +6,10 @@ interface CommunityPageProps {
   params: {
     id: string;
   };
+  searchParams?: { [key: string]: string | string[] | undefined };
 }
 
-export default async function CommunityPage({ params }: CommunityPageProps) {
+export default async function Page({ params }: CommunityPageProps) {
   const community = await prisma.community.findUnique({
     where: { id: params.id },
     include: {
