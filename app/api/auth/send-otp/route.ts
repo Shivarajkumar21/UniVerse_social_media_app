@@ -36,10 +36,10 @@ export async function POST(req: Request) {
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: email,
-      subject: "Your Blabstr Verification Code",
+      subject: "Your Universe Verification Code",
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2>Your Blabstr Verification Code</h2>
+          <h2>Your UniVerse Verification Code</h2>
           <p>Your verification code is: <strong>${otp}</strong></p>
           <p>This code will expire in 10 minutes.</p>
           <p>If you didn't request this code, please ignore this email.</p>
