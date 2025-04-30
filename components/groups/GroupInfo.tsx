@@ -17,7 +17,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/components/ui/use-toast";
 import { Loader2, Settings, UserPlus, UserMinus, Crown, Search, Pencil } from "lucide-react";
 import { Group, GroupMember } from "@/types/group";
-import { UploadButton } from "@uploadthing/react";
+import { UploadButton } from "@/utils/uploadthing";
 import type { OurFileRouter } from "@/app/api/uploadthing/core";
 import { useRouter } from "next/navigation";
 
@@ -242,16 +242,11 @@ export function GroupInfo({
               </Avatar>
             </button>
             {isCurrentUserAdmin && editing && (
-              <UploadButton<OurFileRouter>
+              <UploadButton<OurFileRouter, "imageUploader">
                 endpoint="imageUploader"
                 appearance={{
                   button: "bg-gray-200 px-3 py-1 rounded text-sm font-medium hover:bg-gray-300 transition",
-                  allowedContent: "hidden"
-                }}
-                content={{
-                  button(_) {
-                    return <span>Upload Image</span>;
-                  }
+                  allowedContent: "hidden",
                 }}
                 onClientUploadComplete={(res) => {
                   if (res && res[0]?.url) {
@@ -259,9 +254,9 @@ export function GroupInfo({
                     toast({ title: "Image uploaded!" });
                   }
                 }}
-                onUploadError={(err) =>
-                  toast({ title: "Upload error", description: err.message, variant: "destructive" })
-                }
+                onUploadError={(error: Error) => {
+                  console.error("Error uploading image:", error);
+                }}
               />
             )}
             {/* Modal for viewing large group image */}
