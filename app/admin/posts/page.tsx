@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma";
 import PostTable from "@/components/admin/PostTable";
 import { Suspense } from "react";
+import { Prisma } from "@prisma/client";
 
 async function getPosts(searchParams: { [key: string]: string | string[] | undefined }) {
   const page = Number(searchParams.page) || 1;
@@ -8,15 +9,32 @@ async function getPosts(searchParams: { [key: string]: string | string[] | undef
   const search = searchParams.search as string || "";
   const filter = searchParams.filter as string || "all";
 
-  const where = {
+  const where: Prisma.PostsWhereInput = {
+    type: filter === "text" ? "text" : filter === "image" ? "image" : filter === "video" ? "video" : undefined,
     OR: [
-      { text: { contains: search, mode: "insensitive" } },
-      { user: { name: { contains: search, mode: "insensitive" } } },
-      { user: { email: { contains: search, mode: "insensitive" } } },
+      {
+        text: {
+          contains: search,
+          mode: Prisma.QueryMode.insensitive,
+        },
+      },
+      {
+        user: {
+          name: {
+            contains: search,
+            mode: Prisma.QueryMode.insensitive,
+          },
+        },
+      },
+      {
+        user: {
+          email: {
+            contains: search,
+            mode: Prisma.QueryMode.insensitive,
+          },
+        },
+      },
     ],
-    ...(filter === "text" && { type: "text" }),
-    ...(filter === "image" && { type: "image" }),
-    ...(filter === "video" && { type: "video" }),
   };
 
   const [posts, total] = await Promise.all([
