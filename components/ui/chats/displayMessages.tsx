@@ -1,5 +1,5 @@
 import { Messages } from "@/app/(chats)/chats/[id]/page";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, Dispatch, SetStateAction } from "react";
 import Pusher from "pusher-js";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
 import { useRecoilState } from "recoil";
@@ -17,8 +17,8 @@ const DisplayMessages = ({
   loadingMessage,
   setLoadingMessage,
 }: {
-  messages: Messages[] | undefined;
-  setMessages: Function;
+  messages: Messages[];
+  setMessages: Dispatch<SetStateAction<Messages[]>>;
   chatRoomId: string;
   loadingMessage: boolean;
   setLoadingMessage: Function;
@@ -34,7 +34,7 @@ const DisplayMessages = ({
     
     channel.bind("Message", (data: string) => {
       const message = JSON.parse(data);
-      setMessages((prev) => [...prev, message]);
+      setMessages((prev: Messages[]) => [...prev, message]);
     });
 
     return () => {
