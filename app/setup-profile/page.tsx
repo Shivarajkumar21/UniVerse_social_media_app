@@ -33,6 +33,7 @@ const Page = () => {
     savedPosts: [],
     likedPosts: [],
     isVerified: false,
+    isPrivate: false,
   });
 
   const router = useRouter();
