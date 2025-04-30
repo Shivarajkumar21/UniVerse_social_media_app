@@ -1,48 +1,47 @@
-import type { NextAuthOptions } from "next-auth";
+import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import { NextAuthOptions } from "next-auth";
+import { getServerSession } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-import CredentialsProvider from "next-auth/providers/credentials";
-import { prisma } from "@/lib/db";
-import bcrypt from "bcrypt";
+import prisma from "@/lib/prisma";
 
-export const options: NextAuthOptions = {
+declare module "next-auth" {
+  interface Session {
+    user: {
+      id: string;
+      name: string;
+      email: string;
+      image: string;
+      role: string;
+    };
+  }
+}
+
+export const authOptions: NextAuthOptions = {
+  adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_ID as string,
-      clientSecret: process.env.GOOGLE_SECRET as string,
-    }),
-    CredentialsProvider({
-      name: "Credentials",
-      credentials: {
-        email: {
-          label: "email:",
-          type: "text",
-          placeholder: "your-cool-email",
-        },
-        password: {
-          label: "Password:",
-          type: "password",
-          placeholder: "your-awesome-password",
-        },
-      },
-      async authorize(credentials) {
-        // This is where you need to retrieve user data
-        // to verify with credentials
-        const user = await prisma.users.findFirst({
-          where: { email: credentials?.email },
-        });
-
-        if (
-          credentials?.email === user?.email &&
-          credentials?.password &&
-          user?.password &&
-          (await bcrypt.compare(credentials?.password, user?.password))
-        ) {
-          return user;
-        } else {
-          return null;
-        }
-      },
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
   ],
-  secret: process.env.NEXTAUTH_SECRET,
+  callbacks: {
+    async session({ session, user }) {
+      if (session.user) {
+        session.user.id = user.id;
+        const dbUser = await prisma.users.findUnique({
+          where: { id: user.id },
+          select: { role: true },
+        });
+        if (dbUser) {
+          session.user.role = dbUser.role;
+        }
+      }
+      return session;
+    },
+  },
+  pages: {
+    signIn: "/auth/signin",
+  },
 };
+
+export const getAuthSession = () => getServerSession(authOptions);
