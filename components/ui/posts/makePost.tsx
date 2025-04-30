@@ -8,7 +8,10 @@ import toast from "react-hot-toast";
 import { useState } from "react";
 import { useRecoilState } from "recoil";
 import { userState } from "@/state/atoms/userState";
-import { UploadButton } from "@/utils/uploadthing";
+import { UploadButton } from "@uploadthing/react";
+import type { OurFileRouter } from "@/app/api/uploadthing/core";
+import type { UploadThingError } from "@uploadthing/shared";
+import type { Json } from "@uploadthing/shared";
 import Image from "next/image";
 import ReactPlayer from "react-player";
 import { postState } from "@/state/atoms/postState";
@@ -130,20 +133,19 @@ const MakePost = ({ redirect }: { redirect: boolean }) => {
                       className=" h-40 w-full object-contain"
                     />
                   )}
-                  <UploadButton
+                  <UploadButton<OurFileRouter, "imageUploader">
                     endpoint="imageUploader"
-                    onClientUploadComplete={(res) => {
+                    onClientUploadComplete={(res: { url: string }[]) => {
                       toast.success("successfully uploaded image");
                       setPost((prev) => ({
                         ...prev,
                         image: res ? res[0]?.url : prev.image,
                       }));
                     }}
-                    onUploadError={(error: Error) => {
-                      // Do something with the error.
-                      toast.error(`Failed to upload`);
+                    onUploadError={(error: UploadThingError<Json>) => {
+                      toast.error(`ERROR! ${error.message}`);
                     }}
-                    className="dark:ut-allowed-content:text-lightTheme"
+                    className="ut-button:bg-slate-400 ut-button:dark:bg-gray-600 ut-button:dark:hover:bg-gray-500 ut-button:hover:bg-slate-500 ut-button:dark:text-white ut-button:text-black ut-button:dark:border-gray-500 ut-button:border-slate-500 ut-button:dark:focus-within:ring-gray-500 ut-button:focus-within:ring-slate-500"
                   />
 
                   <div className=" mt-10 grid">
@@ -203,20 +205,19 @@ const MakePost = ({ redirect }: { redirect: boolean }) => {
                     </div>
                   )}
 
-                  <UploadButton
+                  <UploadButton<OurFileRouter, "videoUploader">
                     endpoint="videoUploader"
-                    onClientUploadComplete={(res) => {
+                    onClientUploadComplete={(res: { url: string }[]) => {
                       toast.success("successfully uploaded video");
                       setPost((prev) => ({
                         ...prev,
                         video: res ? res[0]?.url : prev.video,
                       }));
                     }}
-                    onUploadError={(error: Error) => {
-                      // Do something with the error.
-                      toast.error(`video size should be less than 64MB`);
+                    onUploadError={(error: UploadThingError<Json>) => {
+                      toast.error(`ERROR! ${error.message}`);
                     }}
-                    className=" dark:ut-allowed-content:text-lightTheme"
+                    className="ut-button:bg-slate-400 ut-button:dark:bg-gray-600 ut-button:dark:hover:bg-gray-500 ut-button:hover:bg-slate-500 ut-button:dark:text-white ut-button:text-black ut-button:dark:border-gray-500 ut-button:border-slate-500 ut-button:dark:focus-within:ring-gray-500 ut-button:focus-within:ring-slate-500"
                   />
                   <div className=" mt-10 grid">
                     <p>Caption</p>
