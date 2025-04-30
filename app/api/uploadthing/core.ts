@@ -52,6 +52,18 @@ export const ourFileRouter = {
       return { userEmail: token.email };
     })
     .onUploadComplete((data) => console.log("file", data)),
+
+  chatDocumentUploader: f({
+    pdf: { maxFileSize: "8MB" },
+    text: { maxFileSize: "4MB" },
+    image: { maxFileSize: "4MB" },
+  })
+    .middleware(async ({ req }) => {
+      const token = await getToken({ req });
+      if (!token) throw new Error("Unauthorized");
+      return { userId: token.sub };
+    })
+    .onUploadComplete((data) => console.log("file", data)),
 };
 
 export type OurFileRouter = typeof ourFileRouter;
