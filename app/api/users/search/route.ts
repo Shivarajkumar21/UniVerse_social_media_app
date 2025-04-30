@@ -29,6 +29,7 @@ export async function GET(req: Request) {
         email: true,
         imageUrl: true,
         tag: true,
+        role: true,
       },
       take: 10,
     });

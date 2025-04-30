@@ -10,6 +10,7 @@ declare module "next-auth" {
       name: string;
       email: string;
       image: string;
+      role: string;
     }
   }
   interface User {
@@ -17,6 +18,7 @@ declare module "next-auth" {
     name: string;
     email: string;
     image: string;
+    role: string;
   }
 }
 
@@ -41,11 +43,11 @@ export const authOptions: NextAuthOptions = {
 
         const user = await prisma.users.findUnique({
           where: {
-            email: credentials.email
-          }
+            email: credentials.email,
+          },
         });
 
-        if (!user || !user.password) {
+        if (!user || !user?.password) {
           throw new Error("Invalid credentials");
         }
 
@@ -63,6 +65,7 @@ export const authOptions: NextAuthOptions = {
           email: user.email,
           name: user.name,
           image: user.imageUrl,
+          role: user.role || "USER",
         };
       }
     })
