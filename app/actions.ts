@@ -2,7 +2,7 @@
 
 import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/db";
-import { options } from "./api/auth/[...nextauth]/options";
+import { authOptions } from "./api/auth/[...nextauth]/options";
 import { User } from "@/components/renderPages";
 
 /* export async function CommunityPost(
