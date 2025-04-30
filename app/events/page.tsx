@@ -12,11 +12,11 @@ interface Event {
   end: string;
 }
 
-type CalendarValue = Date | [Date, Date] | [null, null] | null;
+type CalendarChangeParams = Parameters<NonNullable<React.ComponentProps<typeof Calendar>["onChange"]>>;
 
 export default function EventsPage() {
   const [events, setEvents] = useState<Event[]>([]);
-  const [selectedDate, setSelectedDate] = useState<CalendarValue>(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -28,27 +28,18 @@ export default function EventsPage() {
       });
   }, []);
 
-  const singleDate = selectedDate instanceof Date
-    ? selectedDate
-    : Array.isArray(selectedDate) && selectedDate[0] instanceof Date
-      ? selectedDate[0]
-      : null;
-
   const eventsForDay = events.filter((event) => {
-    if (!singleDate) return false;
     const eventDate = new Date(event.start);
     return (
-      eventDate.getFullYear() === singleDate.getFullYear() &&
-      eventDate.getMonth() === singleDate.getMonth() &&
-      eventDate.getDate() === singleDate.getDate()
+      eventDate.getFullYear() === selectedDate.getFullYear() &&
+      eventDate.getMonth() === selectedDate.getMonth() &&
+      eventDate.getDate() === selectedDate.getDate()
     );
   });
 
-  const handleCalendarChange = (value: CalendarValue, _event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+  const handleCalendarChange = (...[value]: CalendarChangeParams) => {
     if (value instanceof Date) {
       setSelectedDate(value);
-    } else if (Array.isArray(value) && value[0] instanceof Date) {
-      setSelectedDate(value[0]);
     }
   };
 
@@ -87,8 +78,8 @@ export default function EventsPage() {
         </div>
         <div className="flex-1 w-full">
           <h2 className="text-xl font-semibold mb-4 text-center md:text-left">
-            Events on {singleDate
-              ? `${singleDate.getDate().toString().padStart(2, '0')}/${(singleDate.getMonth() + 1).toString().padStart(2, '0')}/${singleDate.getFullYear()}`
+            Events on {selectedDate
+              ? `${selectedDate.getDate().toString().padStart(2, '0')}/${(selectedDate.getMonth() + 1).toString().padStart(2, '0')}/${selectedDate.getFullYear()}`
               : "-"}
           </h2>
           {loading ? (
