@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 
 // GET /api/admin/communities
 export async function GET(request: Request) {
@@ -17,13 +18,22 @@ export async function GET(request: Request) {
   const search = searchParams.get("search") || "";
   const filter = searchParams.get("filter") || "all";
 
-  const where = {
+  const where: Prisma.CommunityWhereInput = {
+    isPrivate: filter === "private" ? true : filter === "public" ? false : undefined,
     OR: [
-      { name: { contains: search, mode: "insensitive" } },
-      { description: { contains: search, mode: "insensitive" } },
+      {
+        name: {
+          contains: search,
+          mode: Prisma.QueryMode.insensitive,
+        },
+      },
+      {
+        description: {
+          contains: search,
+          mode: Prisma.QueryMode.insensitive,
+        },
+      },
     ],
-    ...(filter === "private" && { isPrivate: true }),
-    ...(filter === "public" && { isPrivate: false }),
   };
 
   const [communities, total] = await Promise.all([
