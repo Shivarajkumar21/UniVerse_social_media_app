@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import Modal from "@/components/modal";
 import { inputClassnames } from "@/components/inputClassNames";
-import { UploadButton } from "@/utils/uploadthing";
+import { UploadButton } from "@uploadthing/react";
+import type { OurFileRouter } from "@/app/api/uploadthing/core";
+import type { UploadThingError } from "@uploadthing/shared";
+import type { Json } from "@uploadthing/shared";
 import toast from "react-hot-toast";
 import ProfileImage from "@/components/ui/profileImage";
 import { Button } from "@/components/ui/button";
@@ -77,14 +80,16 @@ export default function CommunityEditModal({
           <h2 className="text-center text-2xl font-bold mb-2">Edit Community</h2>
           <div className="flex flex-col items-center gap-3">
             <ProfileImage src={imageUrl} size={100} />
-            <UploadButton
+            <UploadButton<OurFileRouter, "imageUploader">
               endpoint="imageUploader"
-              onClientUploadComplete={(res) => {
+              onClientUploadComplete={(res: { url: string }[]) => {
                 toast.success("successfully uploaded photo");
                 setImageUrl(res ? res[0]?.url : imageUrl);
               }}
-              onUploadError={() => toast.error("Max size should be less than 16 MB")}
-              className="dark:ut-allowed-content:text-lightTheme "
+              onUploadError={(error: UploadThingError<Json>) => {
+                toast.error(`ERROR! ${error.message}`);
+              }}
+              className="dark:ut-allowed-content:text-lightTheme"
             />
           </div>
           <div className="grid gap-2">
