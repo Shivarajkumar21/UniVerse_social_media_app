@@ -1,6 +1,7 @@
 "use client";
 
-import { UploadButton } from "@/utils/uploadthing";
+import { UploadButton } from "@uploadthing/react";
+import type { OurFileRouter } from "@/app/api/uploadthing/core";
 import React, { useState } from "react";
 import toast from "react-hot-toast";
 import { AiOutlineVideoCamera } from "react-icons/ai";
@@ -155,10 +156,10 @@ const MakeMessage = ({
           <RiAttachment2 />
         </PopoverTrigger>
         <PopoverContent className="grid w-fit gap-4 rounded-xl bg-slate-300 dark:bg-gray-700">
-          <UploadButton
+          <UploadButton<OurFileRouter, "imageUploader">
             endpoint="imageUploader"
             content={{
-              button({ ready }) {
+              button({ ready }: { ready: boolean }) {
                 if (ready)
                   return (
                     <div className="flex items-center gap-2">
@@ -169,22 +170,24 @@ const MakeMessage = ({
                 return "loading...";
               },
             }}
-            onClientUploadComplete={(res) => {
-              setPost((prev) => ({
-                ...prev,
-                image: res ? res[0]?.url : prev.image,
-              }));
+            onClientUploadComplete={(res: { url: string }[]) => {
+              if (res) {
+                setPost((prev) => ({
+                  ...prev,
+                  image: res[0].url,
+                }));
+              }
             }}
             onUploadError={(error: Error) => {
-              toast.error(`Failed to upload`);
+              toast.error(`ERROR! ${error.message}`);
             }}
-            className="ut-button:w-fit ut-button:rounded-3xl ut-button:bg-lightTheme ut-button:p-4 ut-button:font-bold ut-button:text-darkTheme ut-allowed-content:hidden dark:ut-button:bg-slate-800 dark:ut-button:text-lightTheme"
+            className="ut-button:bg-slate-400 ut-button:dark:bg-gray-600 ut-button:dark:hover:bg-gray-500 ut-button:hover:bg-slate-500 ut-button:dark:text-white ut-button:text-black ut-button:dark:border-gray-500 ut-button:border-slate-500 ut-button:dark:focus-within:ring-gray-500 ut-button:focus-within:ring-slate-500"
           />
 
-          <UploadButton
+          <UploadButton<OurFileRouter, "videoUploader">
             endpoint="videoUploader"
             content={{
-              button({ ready }) {
+              button({ ready }: { ready: boolean }) {
                 if (ready)
                   return (
                     <div className="flex items-center gap-2">
@@ -195,22 +198,24 @@ const MakeMessage = ({
                 return "loading...";
               },
             }}
-            onClientUploadComplete={(res) => {
-              setPost((prev) => ({
-                ...prev,
-                video: res ? res[0]?.url : prev.video,
-              }));
+            onClientUploadComplete={(res: { url: string }[]) => {
+              if (res) {
+                setPost((prev) => ({
+                  ...prev,
+                  video: res[0].url,
+                }));
+              }
             }}
             onUploadError={(error: Error) => {
-              toast.error(`video size should be less than 64MB`);
+              toast.error(`ERROR! ${error.message}`);
             }}
-            className="ut-button:w-fit ut-button:rounded-3xl ut-button:bg-lightTheme ut-button:p-4 ut-button:font-bold ut-button:text-darkTheme ut-allowed-content:hidden dark:ut-button:bg-slate-800 dark:ut-button:text-lightTheme"
+            className="ut-button:bg-slate-400 ut-button:dark:bg-gray-600 ut-button:dark:hover:bg-gray-500 ut-button:hover:bg-slate-500 ut-button:dark:text-white ut-button:text-black ut-button:dark:border-gray-500 ut-button:border-slate-500 ut-button:dark:focus-within:ring-gray-500 ut-button:focus-within:ring-slate-500"
           />
 
-          <UploadButton
+          <UploadButton<OurFileRouter, "chatDocumentUploader">
             endpoint="chatDocumentUploader"
             content={{
-              button({ ready }) {
+              button({ ready }: { ready: boolean }) {
                 if (ready)
                   return (
                     <div className="flex items-center gap-2">
@@ -221,18 +226,18 @@ const MakeMessage = ({
                 return "loading...";
               },
             }}
-            onClientUploadComplete={(res) => {
-              if (res && res[0]) {
+            onClientUploadComplete={(res: { url: string; name: string }[]) => {
+              if (res) {
                 setPost((prev) => ({
                   ...prev,
-                  document: [...prev.document, { url: res[0].url, name: res[0].name }],
+                  document: [...prev.document, ...res],
                 }));
               }
             }}
             onUploadError={(error: Error) => {
-              toast.error(`Failed to upload document`);
+              toast.error(`ERROR! ${error.message}`);
             }}
-            className="ut-button:w-fit ut-button:rounded-3xl ut-button:bg-lightTheme ut-button:p-4 ut-button:font-bold ut-button:text-darkTheme ut-allowed-content:hidden dark:ut-button:bg-slate-800 dark:ut-button:text-lightTheme"
+            className="ut-button:bg-slate-400 ut-button:dark:bg-gray-600 ut-button:dark:hover:bg-gray-500 ut-button:hover:bg-slate-500 ut-button:dark:text-white ut-button:text-black ut-button:dark:border-gray-500 ut-button:border-slate-500 ut-button:dark:focus-within:ring-gray-500 ut-button:focus-within:ring-slate-500"
           />
         </PopoverContent>
       </Popover>
