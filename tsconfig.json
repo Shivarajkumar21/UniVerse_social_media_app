@@ -21,6 +21,7 @@
     "paths": {
       "@/*": ["./*"]
     },
+    "typeRoots": ["./node_modules/@types", "./types"],
     "forceConsistentCasingInFileNames": true
   },
   "include": [
@@ -29,7 +30,8 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "app/api/auth/[...nextauth]/route.ts",
-    "app/api/upload/route.js"
+    "app/api/upload/route.js",
+    "types/**/*.d.ts"
   ],
   "exclude": ["node_modules"]
 }
