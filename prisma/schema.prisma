@@ -276,6 +276,8 @@ model EmailVerification {
   code      String
   createdAt DateTime @default(now())
   expiresAt DateTime
+
+  @@index([email])
 }
 
 model PreApprovedStudent {
