@@ -21,15 +21,13 @@ export const POST = async (req: any) => {
       include: { user: true },
     });
     if (post && post.user.email !== body.email) {
-      await fetch(`/api/notifications`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      await prisma.notification.create({
+        data: {
           userId: post.user.id,
+          type: 'comment',
           message: `${comment.user.name || 'Someone'} commented on your post.`,
           link: `/post/${post.id}?tab=comments`,
-          type: 'comment',
-        }),
+        },
       });
     }
     return new NextResponse(JSON.stringify(comment));

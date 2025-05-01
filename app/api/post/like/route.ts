@@ -24,15 +24,13 @@ export const PUT = async (req: any) => {
     // Send notification to post author if not self-like
     if (post.user.id !== body.userId) {
       const liker = await prisma.users.findUnique({ where: { id: body.userId } });
-      await fetch(`/api/notifications`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      await prisma.notification.create({
+        data: {
           userId: post.user.id,
+          type: 'like',
           message: `${liker?.name || 'Someone'} liked your post.`,
           link: `/post/${post.id}`,
-          type: 'like',
-        }),
+        },
       });
     }
 

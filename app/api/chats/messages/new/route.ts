@@ -37,15 +37,13 @@ export const POST = async (req: any) => {
     if (chatRoom) {
       for (const member of chatRoom.members) {
         if (member.email !== body.email) {
-          await fetch(`/api/notifications`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
+          await prisma.notification.create({
+            data: {
               userId: member.id,
+              type: 'message',
               message: `${message.user.name || 'Someone'} sent you a message.`,
               link: `/chats/${body.id}`,
-              type: 'message',
-            }),
+            },
           });
         }
       }
