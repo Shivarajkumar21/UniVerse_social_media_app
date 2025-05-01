@@ -270,13 +270,14 @@ model Report {
   @@index([reporterId])
 }
 
-model EmailVerification {
+model email_verification {
   id        String   @id @default(cuid())
   email     String
   code      String
   createdAt DateTime @default(now())
   expiresAt DateTime
 
+  @@map("EmailVerification")
   @@index([email])
 }
 
