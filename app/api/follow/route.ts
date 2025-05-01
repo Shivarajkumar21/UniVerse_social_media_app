@@ -39,7 +39,7 @@ export const PUT = async (req: any) => {
           userId: body.followedToId,
           type: 'follow',
           message: `${follower?.name || 'Someone'} started following you.`,
-          link: `/profile/${follower?.tag || ''}`,
+          link: `/${follower?.tag || ''}`,
         },
       });
     }
