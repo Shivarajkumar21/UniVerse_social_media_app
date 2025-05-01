@@ -30,6 +30,21 @@ export const PUT = async (req: any) => {
         },
       },
     });
+
+    // Send notification to followed user
+    if (body.followedById !== body.followedToId) {
+      const follower = await prisma.users.findUnique({ where: { id: body.followedById } });
+      await fetch(`/api/notifications`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: body.followedToId,
+          message: `${follower?.name || 'Someone'} started following you.`,
+          link: `/profile/${follower?.tag || ''}`,
+          type: 'follow',
+        }),
+      });
+    }
     return new NextResponse(JSON.stringify("followed"));
   } catch (error) {
     console.log('FOLLOW PUT ERROR:', error);

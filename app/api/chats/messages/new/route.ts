@@ -29,6 +29,28 @@ export const POST = async (req: any) => {
 
     await pusherServer.trigger(body.id, "Message", JSON.stringify(message));
 
+    // Notify all other chat members
+    const chatRoom = await prisma.chatRoom.findUnique({
+      where: { id: body.id },
+      include: { members: true },
+    });
+    if (chatRoom) {
+      for (const member of chatRoom.members) {
+        if (member.email !== body.email) {
+          await fetch(`/api/notifications`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              userId: member.id,
+              message: `${message.user.name || 'Someone'} sent you a message.`,
+              link: `/chats/${body.id}`,
+              type: 'message',
+            }),
+          });
+        }
+      }
+    }
+
     await prisma.chatRoom.update({
       where: {
         id: body.id,
