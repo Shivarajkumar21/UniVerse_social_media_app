@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server";
+import { pusherServer } from "@/lib/pusher";
 
 export const PUT = async (req: any) => {
   const body = await req.json();
@@ -34,7 +35,7 @@ export const PUT = async (req: any) => {
     // Send notification to followed user
     if (body.followedById !== body.followedToId) {
       const follower = await prisma.users.findUnique({ where: { id: body.followedById } });
-      await prisma.notification.create({
+      const notification = await prisma.notification.create({
         data: {
           userId: body.followedToId,
           type: 'follow',
@@ -42,6 +43,13 @@ export const PUT = async (req: any) => {
           link: `/${follower?.tag || ''}`,
         },
       });
+
+      // Trigger real-time notification
+      await pusherServer.trigger(
+        `user-${body.followedToId}-notifications`,
+        "new-notification",
+        JSON.stringify(notification)
+      );
     }
     return new NextResponse(JSON.stringify("followed"));
   } catch (error) {
