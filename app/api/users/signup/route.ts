@@ -2,7 +2,9 @@ import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 
-export const POST = async (req: any) => {
+const ADMIN_EMAIL = "shivarajkumarbm21@gmail.com";
+
+export async function POST(req: Request) {
   try {
     const user = await req.json();
     
@@ -12,8 +14,11 @@ export const POST = async (req: any) => {
     });
 
     if (existingUser) {
-      return new NextResponse("User already exists", { status: 409 });
+      return NextResponse.json({ error: "User already exists" }, { status: 409 });
     }
+
+    // Set role based on email
+    const role = user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase() ? "ADMIN" : "USER";
 
     // Create new user
     const createUser = await prisma.users.create({
@@ -25,12 +30,14 @@ export const POST = async (req: any) => {
         imageUrl: user.imageUrl || "https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png?20170328184010",
         about: user.about || "Student at the university",
         tag: user.tag || user.usn || user.email.split("@")[0] + Math.floor(Math.random() * 1000),
+        role: role,
+        isVerified: role === "ADMIN",
       },
     });
 
-    return new NextResponse(JSON.stringify("Created New Account"));
+    return NextResponse.json("Created New Account", { status: 201 });
   } catch (error) {
     console.error("Signup error:", error);
-    return new NextResponse("Failed to create account", { status: 500 });
+    return NextResponse.json({ error: "Failed to create account" }, { status: 500 });
   }
-};
+}

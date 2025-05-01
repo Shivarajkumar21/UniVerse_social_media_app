@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { signIn, useSession } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { FcGoogle } from "react-icons/fc";
 import { LiaSpinnerSolid } from "react-icons/lia";
@@ -19,122 +19,107 @@ const SiginForm = ({ formType }: { formType: FormType }) => {
   });
   const [otp, setOtp] = useState("");
   const [showOtpInput, setShowOtpInput] = useState(false);
-  const [isVerifying, setIsVerifying] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [isSendingOtp, setIsSendingOtp] = useState(false);
   const [countdown, setCountdown] = useState(600); // 10 minutes in seconds
-
   const router = useRouter();
-  const { data: session } = useSession();
 
-  const handleSendOtp = async () => {
+  const handleSendOtp = async (email: string) => {
     try {
       setIsSendingOtp(true);
-      await axios.post("/api/auth/send-otp", { email: userInput.email });
+      await axios.post("/api/auth/send-otp", { email });
       setShowOtpInput(true);
       setCountdown(600); // Reset countdown to 10 minutes
       toast.success("OTP sent to your email");
     } catch (error) {
       toast.error("Failed to send OTP");
+      return false;
     } finally {
       setIsSendingOtp(false);
     }
+    return true;
   };
 
   const handleVerifyOtp = async () => {
     try {
-      setIsVerifying(true);
-      await axios.post("/api/auth/verify-otp", {
+      setIsLoading(true);
+      const response = await axios.post("/api/auth/verify-otp", {
         email: userInput.email,
         code: otp,
       });
-      setShowOtpInput(false);
-      toast.success("OTP verified successfully");
-      return true;
+      if (response.data.verified) {
+        toast.success("OTP verified successfully");
+        return true;
+      } else {
+        toast.error("Invalid OTP");
+        return false;
+      }
     } catch (error) {
-      toast.error("Invalid OTP");
+      toast.error("Failed to verify OTP");
       return false;
     } finally {
-      setIsVerifying(false);
+      setIsLoading(false);
     }
   };
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
 
-    if (formType === "signin" && userInput.email && userInput.password) {
-      if (!showOtpInput) {
-        // First verify credentials
-        const { email, password } = userInput;
-        const user = await signIn("credentials", {
-          email,
-          password,
-          redirect: false,
-        });
-        if (!user?.url) {
-          toast.error("Email or password is incorrect");
-          return;
-        }
-        // If credentials are correct, send OTP
-        await handleSendOtp();
-      } else {
-        // Verify OTP
-        const isOtpValid = await handleVerifyOtp();
-        if (isOtpValid) {
-          // If OTP is valid, complete sign in
-          const { email, password } = userInput;
+    try {
+      if (formType === "signin") {
+        if (!showOtpInput) {
+          // First verify credentials
           const result = await signIn("credentials", {
-            email,
-            password,
+            email: userInput.email,
+            password: userInput.password,
             redirect: false,
           });
-          
-          if (result?.ok) {
-            // Check if user needs to complete profile setup
-            try {
-              const response = await axios.get("/api/users/check-profile");
-              if (!response.data.hasProfile) {
-                router.push("/setup-profile");
-              } else {
-                router.push("/home");
-              }
-            } catch (error) {
+
+          if (result?.error) {
+            toast.error("Invalid credentials");
+          } else {
+            // If credentials are correct, send OTP
+            const otpSent = await handleSendOtp(userInput.email);
+            if (!otpSent) {
+              toast.error("Failed to send OTP");
+            }
+          }
+        } else {
+          // Verify OTP
+          const isOtpValid = await handleVerifyOtp();
+          if (isOtpValid) {
+            // Complete sign in after OTP verification
+            const result = await signIn("credentials", {
+              email: userInput.email,
+              password: userInput.password,
+              redirect: false,
+            });
+            
+            if (result?.error) {
+              toast.error("Failed to sign in");
+            } else {
               router.push("/home");
             }
           }
         }
-      }
-    } else if (
-      formType === "signup" &&
-      userInput.name &&
-      userInput.password &&
-      userInput.email
-    ) {
-      if (!showOtpInput) {
-        // First send OTP
-        await handleSendOtp();
       } else {
-        // Verify OTP
-        const isOtpValid = await handleVerifyOtp();
-        if (isOtpValid) {
-          // If OTP is valid, complete sign up
-          toast
-            .promise(axios.put("/api/users/signup", userInput), {
-              loading: "Creating new account...",
-              success: <p>Successfully created account</p>,
-              error: (
-                <p>
-                  Account with email <b>"{userInput.email}"</b> already exists
-                </p>
-              ),
-            })
-            .then((resp) => {
-              if (resp.data === "Created New Account") {
-                router.push("/signin");
-              }
-            });
+        // Handle sign up
+        const response = await axios.post("/api/users/signup", userInput);
+        if (response.data === "Created New Account") {
+          toast.success("Account created successfully");
+          router.push("/signin");
         }
       }
-    } else toast.error("Fill all details");
+    } catch (error) {
+      toast.error(formType === "signin" ? "Failed to sign in" : "Failed to create account");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = () => {
+    signIn("google", { callbackUrl: "/home" });
   };
 
   const formatTime = (seconds: number) => {
@@ -147,7 +132,7 @@ const SiginForm = ({ formType }: { formType: FormType }) => {
     <div className="flex flex-col items-center justify-center gap-4 p-2">
       <form
         className="flex flex-col items-center justify-center gap-4 p-2"
-        onSubmit={(e) => handleSubmit(e)}
+        onSubmit={handleSubmit}
       >
         {formType === "signup" && (
           <input
@@ -161,6 +146,7 @@ const SiginForm = ({ formType }: { formType: FormType }) => {
                 name: e.target.value,
               }))
             }
+            required
           />
         )}
         <input
@@ -174,6 +160,7 @@ const SiginForm = ({ formType }: { formType: FormType }) => {
               email: e.target.value,
             }))
           }
+          required
         />
         <input
           type="password"
@@ -186,8 +173,9 @@ const SiginForm = ({ formType }: { formType: FormType }) => {
               password: e.target.value,
             }))
           }
+          required
         />
-        {showOtpInput && (
+        {showOtpInput && formType === "signin" && (
           <>
             <input
               type="text"
@@ -198,6 +186,7 @@ const SiginForm = ({ formType }: { formType: FormType }) => {
               maxLength={6}
               pattern="[0-9]*"
               inputMode="numeric"
+              required
             />
             <div className="text-center text-sm text-gray-600 dark:text-gray-300">
               <p>Code expires in {formatTime(countdown)}</p>
@@ -207,13 +196,13 @@ const SiginForm = ({ formType }: { formType: FormType }) => {
         <button
           type="submit"
           className="mt-4 rounded-lg bg-lightGray p-2 px-14 font-semibold dark:bg-darkGray md:w-full"
-          disabled={isVerifying || isSendingOtp}
+          disabled={isLoading || isSendingOtp}
         >
-          {isVerifying || isSendingOtp ? (
+          {isLoading || isSendingOtp ? (
             <span className="flex items-center justify-center">
               <LiaSpinnerSolid className="animate-spin" />
             </span>
-          ) : showOtpInput ? (
+          ) : showOtpInput && formType === "signin" ? (
             "Verify OTP"
           ) : formType === "signup" ? (
             "Create Account"
@@ -225,7 +214,7 @@ const SiginForm = ({ formType }: { formType: FormType }) => {
       <p className="-my-3 text-xl font-semibold">or</p>
       <button
         className="flex items-center gap-2 rounded-md bg-extraLightGray p-2 font-bold shadow-xl dark:bg-lightTheme dark:text-darkTheme md:w-full"
-        onClick={() => signIn("google")}
+        onClick={handleGoogleSignIn}
       >
         <FcGoogle />
         {formType === "signup" ? "Sign Up" : "Sign in"} with Google
@@ -234,7 +223,6 @@ const SiginForm = ({ formType }: { formType: FormType }) => {
         {formType === "signup"
           ? "Already have an account, "
           : "Don't have an Account , "}
-
         <Link
           href={formType === "signup" ? "/signin" : "/signup"}
           className="text-blue-500 underline dark:text-blue-300"

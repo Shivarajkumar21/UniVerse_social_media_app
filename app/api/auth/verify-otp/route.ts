@@ -1,34 +1,56 @@
-import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
 
 export async function POST(req: Request) {
   try {
     const { email, code } = await req.json();
 
-    // Find the OTP
+    if (!email || !code) {
+      return NextResponse.json(
+        { error: "Email and code are required" },
+        { status: 400 }
+      );
+    }
+
+    // Find the most recent OTP for this email that hasn't expired
     const verification = await prisma.emailVerification.findFirst({
       where: {
         email,
         code,
         expiresAt: {
-          gt: new Date(), // Check if OTP is not expired
+          gt: new Date(),
         },
+      },
+      orderBy: {
+        createdAt: 'desc',
       },
     });
 
     if (!verification) {
       return NextResponse.json(
-        { error: "Invalid or expired OTP" },
+        { verified: false, error: "Invalid or expired OTP" },
         { status: 400 }
       );
     }
 
     // Delete the used OTP
     await prisma.emailVerification.delete({
-      where: { id: verification.id },
+      where: {
+        id: verification.id,
+      },
     });
 
-    return NextResponse.json({ success: true });
+    // Clean up expired OTPs for this email
+    await prisma.emailVerification.deleteMany({
+      where: {
+        email,
+        expiresAt: {
+          lt: new Date(),
+        },
+      },
+    });
+
+    return NextResponse.json({ verified: true });
   } catch (error) {
     console.error("Error verifying OTP:", error);
     return NextResponse.json(

@@ -11,13 +11,13 @@ const Page = () => {
     <main className="flex h-screen w-screen flex-col justify-center gap-4 dark:bg-darkTheme md:flex-row ">
       <div className="flex flex-col items-center justify-center md:-ml-32 md:-mt-20">
         <div className="relative">
-          <Image
+        <Image
             src="/_6dd78af8-728b-43b4-9083-9b6eb8bb0017-removebg-preview.png"
-            width={300}
-            height={300}
+          width={300}
+          height={300}
             alt="UniVerse logo"
             className="h-40 w-40 md:h-80 md:w-80"
-          />
+        />
         </div>
         <h1 className="mt-4 text-3xl font-bold">UniVerse</h1>
       </div>

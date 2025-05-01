@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
+const ADMIN_EMAIL = "shivarajkumarbm21@gmail.com";
+
 export async function POST(req: Request) {
   try {
     const { email, usn } = await req.json();
@@ -10,6 +12,11 @@ export async function POST(req: Request) {
         { error: "Email and USN are required" },
         { status: 400 }
       );
+    }
+
+    // Allow admin email to bypass pre-approval check
+    if (email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+      return NextResponse.json({ isApproved: true });
     }
 
     // Check if the email and USN combination exists in PreApprovedStudent
