@@ -18,7 +18,7 @@ const RenderPages = ({ children }: { children: React.ReactNode }) => {
 
   const pathname = usePathname();
 
-  const headerLessRoutes = ["/", "/signin", "/signup", "/setup-profile"];
+  const headerLessRoutes = ["/", "/signin", "/signup", "/setup-profile", "/reset-password", "/forgot-password"];
   const protectedRoutes = [
     "/home",
     "/editProfile",

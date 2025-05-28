@@ -32,8 +32,9 @@ const DisplayMessages = ({
     
     const channel = pusherClient.subscribe(chatRoomId);
     
-    channel.bind("Message", (data: string) => {
-      const message = JSON.parse(data);
+    channel.bind("Message", (data: any) => {
+      // Handle both string and object data
+      const message = typeof data === 'string' ? JSON.parse(data) : data;
       setMessages((prev: Messages[]) => [...prev, message]);
     });
 

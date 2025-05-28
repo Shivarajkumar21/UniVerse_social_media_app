@@ -44,6 +44,8 @@ model Users {
   reports         Report[]       @relation("reporter")
   accounts        Account[]      // Added for NextAuth
   sessions        Session[]      // Added for NextAuth
+  resetToken      String?        // For password reset
+  resetTokenExpiry DateTime?     // Expiry time for reset token
 }
 
 model Posts {

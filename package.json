@@ -41,6 +41,7 @@
     "emoji-mart": "^5.5.2",
     "encoding": "^0.1.13",
     "formidable": "^3.5.1",
+    "framer-motion": "^12.12.1",
     "lodash.debounce": "^4.0.8",
     "lucide-react": "^0.270.0",
     "nanoid": "^5.0.1",
