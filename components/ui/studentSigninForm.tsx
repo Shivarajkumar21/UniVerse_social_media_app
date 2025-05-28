@@ -197,6 +197,7 @@ const StudentSigninForm = () => {
               required
               disabled={isLoading || isSendingOtp}
             />
+<<<<<<< HEAD
             <div className="text-right">
               <Link 
                 href="/forgot-password" 
@@ -205,6 +206,8 @@ const StudentSigninForm = () => {
                 Forgot Password?
               </Link>
             </div>
+=======
+>>>>>>> 7b64042ec98f7a1a4a3c94aafb5de0597cbbeed6
           </div>
         </motion.div>
 
