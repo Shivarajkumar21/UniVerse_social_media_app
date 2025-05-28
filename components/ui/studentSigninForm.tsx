@@ -11,6 +11,25 @@ import { toast } from "react-hot-toast";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
+// Animation variants
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { y: 20, opacity: 0 },
+  visible: {
+    y: 0,
+    opacity: 1
+  }
+};
+
 const StudentSigninForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -197,8 +216,7 @@ const StudentSigninForm = () => {
               required
               disabled={isLoading || isSendingOtp}
             />
-<<<<<<< HEAD
-            <div className="text-right">
+            <div className="text-right mt-2">
               <Link 
                 href="/forgot-password" 
                 className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium transition-colors"
@@ -206,8 +224,6 @@ const StudentSigninForm = () => {
                 Forgot Password?
               </Link>
             </div>
-=======
->>>>>>> 7b64042ec98f7a1a4a3c94aafb5de0597cbbeed6
           </div>
         </motion.div>
 
