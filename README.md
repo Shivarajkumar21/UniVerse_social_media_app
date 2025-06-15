@@ -1,4 +1,4 @@
-# UniVerse - Next-Gen Social Media Platform
+# UniVerse - Next-Gen University Social Media Platform
 
 [![Next.js](https://img.shields.io/badge/Next.js-13.4.19-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.2.2-3178C6?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
