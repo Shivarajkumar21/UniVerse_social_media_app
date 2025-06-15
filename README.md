@@ -7,7 +7,6 @@
 [![NextAuth.js](https://img.shields.io/badge/NextAuth.js-4.24.5-000000?style=for-the-badge)](https://next-auth.js.org/)
 
 UniVerse is a modern, full-stack social media platform built with Next.js 13+ and TypeScript. It offers a rich set of features including real-time chat, community building, event management, and content sharing in a clean, responsive interface.
-## 🚀 DEMO link - https://universe-social-media-app.onrender.com/
 
 ## ✨ Features
 
@@ -85,7 +84,9 @@ UniVerse is a modern, full-stack social media platform built with Next.js 13+ an
 
 ## 📝 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the GNU Affero General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
+
+This is a strong copyleft license that requires any derivative works to be open source and prevents commercial use without explicit permission.
 
 ## 🤝 Contributing
 
@@ -93,7 +94,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## 📧 Contact
 
-SHIVARAJKUMAR B. M - shivarajkumarbm21@gmail.com
+Shivarajkumar M - shivarajkumarbm21@gmail.com
 
 ## 🙏 Acknowledgments
 
@@ -101,4 +102,3 @@ SHIVARAJKUMAR B. M - shivarajkumarbm21@gmail.com
 - [Tailwind CSS](https://tailwindcss.com/)
 - [shadcn/ui](https://ui.shadcn.com/)
 - [Prisma](https://www.prisma.io/)
-
