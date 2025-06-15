@@ -93,9 +93,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## 📧 Contact
 
-Your Name - [@yourtwitter](https://twitter.com/yourtwitter) - your.email@example.com
-
-Project Link: [https://github.com/yourusername/universe](https://github.com/yourusername/universe)
+SHIVARAJKUMAR B. M - shivarajkumarbm21@gmail.com
 
 ## 🙏 Acknowledgments
 
